@@ -1,4 +1,4 @@
-package model;
+package com.backend.support.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -8,12 +8,10 @@ import java.util.HashMap;
 
 @Data
 @Entity
-@Table
+@Table(name = "chats")
 public class Chat {
 
-    public Chat() throws Exception {
-        throw new Exception("Fields can not be empty!");
-    }
+    public Chat(){}
     public Chat(String name) {
         this.setUserName(name);
         this.setPriorityLevel(1);
@@ -33,13 +31,13 @@ public class Chat {
     private String operatorName;
 
     @Column(name = "operator_id")
-    private String operatorId;
+    private Long operatorId;
 
     @Column(name = "priority_level")
     private Integer priorityLevel;
 
     @Transient
-    @Column(name = "messages")
+    @Column(name = "messages", columnDefinition = "jsonb")
     public HashMap<Long, String> messages = new HashMap<>();
 
     @Column(name = "created_at")
@@ -48,5 +46,6 @@ public class Chat {
     public void addMessage(Long Id, String text) {
         messages.put(Id, text);
     }
+    public String getMessage(Long id) {return messages.get(id);}
 
 }

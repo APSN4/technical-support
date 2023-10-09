@@ -1,6 +1,6 @@
-package repository;
+package com.backend.support.repository;
 
-import model.Chat;
+import com.backend.support.model.Chat;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {

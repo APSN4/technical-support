@@ -1,4 +1,4 @@
-package model;
+package com.backend.support.model;
 
 
 import jakarta.persistence.*;
@@ -8,12 +8,11 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table
+@Table(name = "messages")
 public class Message {
-    public Message() throws Exception {
-        throw new Exception("Fields can not be empty!");
-    }
-    public Message(String name, String text) {
+    public Message(){}
+    public Message(Long chatId, String name, String text) {
+        this.setChatId(chatId);
         this.setName(name);
         this.setText(text);
         this.setCreatedAt(LocalDateTime.now());
@@ -23,6 +22,9 @@ public class Message {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "chat_id")
+    private Long chatId;
 
     @Column(name = "name")
     private String name;
