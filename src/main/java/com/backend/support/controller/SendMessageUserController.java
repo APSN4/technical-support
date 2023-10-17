@@ -31,14 +31,14 @@ public class SendMessageUserController {
         if (chat.isEmpty()) return new ResponseEntity<>(new JSONObject()
                 .put("message", "Error id not found").toString(), HttpStatus.NOT_FOUND);
 
-        Message message = new Message(Long.valueOf(id), requestSendMessage.getUser_name(), requestSendMessage.getText());
+        Message message = new Message(requestSendMessage.getUser_name(), requestSendMessage.getText());
         Message messageCreate = messageRepository.saveAndFlush(message);
 
-        chat.get().addMessage(messageCreate.getId(), messageCreate.getText());
+        chat.get().addMessage(messageCreate);
 
         JSONObject entityData = new JSONObject()
                 .put("id", messageCreate.getId())
-                .put("chat_id", messageCreate.getChatId())
+                .put("chat_id", messageCreate.getChat().getId())
                 .put("name", messageCreate.getName())
                 .put("text", messageCreate.getText())
                 .put("created_at", messageCreate.getCreatedAt());

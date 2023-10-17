@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -36,16 +38,19 @@ public class Chat {
     @Column(name = "priority_level")
     private Integer priorityLevel;
 
-    @Transient
-    @Column(name = "messages", columnDefinition = "jsonb")
-    public HashMap<Long, String> messages = new HashMap<>();
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    public Set<Message> messages = new HashSet<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public void addMessage(Long Id, String text) {
-        messages.put(Id, text);
+    public void addMessage(Message message) {
+        messages.add(message);
+        message.setChat(this);
     }
-    public String getMessage(Long id) {return messages.get(id);}
+    public void removeMessage(Message message) {
+        messages.remove(message);
+        message.setChat(null);
+    }
 
 }

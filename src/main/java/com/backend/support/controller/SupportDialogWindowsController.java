@@ -28,12 +28,13 @@ public class SupportDialogWindowsController {
     public ResponseEntity<Object> createChat(@RequestBody Request createChatRequest) {
         Chat chat = new Chat(createChatRequest.getName());
         Chat chatCreated = chatRepository.saveAndFlush(chat);
-        Message message = new Message(chatCreated.getId(), createChatRequest.getName(), createChatRequest.getText());
-        Message messageCreate = messageRepository.saveAndFlush(message);
-        chatCreated.addMessage(messageCreate.getId(), createChatRequest.getText());
+
+        Message message = new Message(createChatRequest.getName(), createChatRequest.getText());
+        message.setChat(chatCreated); // Устанавливаем связь с чатом
+        Message messageCreate = messageRepository.saveAndFlush(message); // messages пустой у чата, доделать
 
         JSONArray entityMessages = new JSONArray();
-        chatCreated.messages.forEach((key, value) -> entityMessages.put(new JSONObject().put(String.valueOf(key), value)));
+        chatCreated.messages.forEach((object) -> entityMessages.put(new JSONObject().put(String.valueOf(object.getId()), object.getText())));
 
         JSONObject entityData = new JSONObject()
                 .put("id", chatCreated.getId())
@@ -53,10 +54,10 @@ public class SupportDialogWindowsController {
         Optional<Chat> chat = chatRepository.findById(requestGetChatId.getId());
         if (chat.isPresent()) {
             JSONArray jsonArray = new JSONArray();
-            for (Long key: chat.get().getMessages().keySet()) {
+            for (Message object: chat.get().getMessages()) {
                 JSONObject objMsg = new JSONObject()
-                        .put("id", key)
-                        .put("message", chat.get().getMessage(key));
+                        .put("id", object.getId())
+                        .put("message", object.getText());
                 jsonArray.put(objMsg);
             }
 

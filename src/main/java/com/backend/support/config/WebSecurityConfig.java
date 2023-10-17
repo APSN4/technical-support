@@ -19,6 +19,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().denyAll()
                 );
+        http.csrf().disable();
 
         return http.build();
     }

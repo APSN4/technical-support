@@ -8,14 +8,13 @@ CREATE TABLE chats(
     operator VARCHAR(255),
     operator_id VARCHAR(255),
     priority_level INT,
-    messages JSONB,
     created_at TIMESTAMP
 );
 ```
 ```
 CREATE TABLE messages(  
     id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    chat_id BIGINT,
+    chat_id BIGINT REFERENCES chats(id),
     name VARCHAR(255),
     text TEXT,
     created_at TIMESTAMP

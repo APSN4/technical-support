@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Table(name = "messages")
 public class Message {
     public Message(){}
-    public Message(Long chatId, String name, String text) {
-        this.setChatId(chatId);
+    public Message(String name, String text) {
+        this.setChat(chat);
         this.setName(name);
         this.setText(text);
         this.setCreatedAt(LocalDateTime.now());
@@ -23,8 +23,8 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "chat_id")
-    private Long chatId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Chat chat;
 
     @Column(name = "name")
     private String name;
