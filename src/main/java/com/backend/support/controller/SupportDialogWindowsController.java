@@ -7,17 +7,23 @@ import com.backend.support.repository.MessageRepository;
 import lombok.Data;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("v1/window")
 public class SupportDialogWindowsController {
+    static final Logger log =
+            LoggerFactory.getLogger(SupportDialogWindowsController.class);
     @Autowired
     ChatRepository chatRepository;
 
@@ -30,14 +36,14 @@ public class SupportDialogWindowsController {
         Chat chatCreated = chatRepository.saveAndFlush(chat);
 
         Message message = new Message(createChatRequest.getName(), createChatRequest.getText());
-        message.setChat(chatCreated); // Устанавливаем связь с чатом
-        Message messageCreate = messageRepository.saveAndFlush(message); // messages пустой у чата, доделать
+        message.setChat(chatCreated);
+        Message messageCreate = messageRepository.saveAndFlush(message);
 
         JSONArray entityMessages = new JSONArray();
-        chatCreated.messages.forEach((object) -> entityMessages.put(new JSONObject().put(String.valueOf(object.getId()), object.getText())));
+        entityMessages.put(new JSONObject().put("id", messageCreate.getId().longValue()));
 
         JSONObject entityData = new JSONObject()
-                .put("id", chatCreated.getId())
+                .put("id_chat", chatCreated.getId())
                 .put("name_user", chatCreated.getUserName())
                 .put("name_operator", chatCreated.getOperatorName())
                 .put("messages", entityMessages);
@@ -49,12 +55,13 @@ public class SupportDialogWindowsController {
         return new ResponseEntity<>(entitySuccess.toString(), HttpStatus.OK);
     }
 
-    @PostMapping(path = "/{id}/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/chat/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getChat(@RequestBody RequestGetChatId requestGetChatId) {
         Optional<Chat> chat = chatRepository.findById(requestGetChatId.getId());
         if (chat.isPresent()) {
+            List<Message> top50MessagesDesc = messageRepository.findTop50ByOrderByIdDesc();
             JSONArray jsonArray = new JSONArray();
-            for (Message object: chat.get().getMessages()) {
+            for (Message object: top50MessagesDesc) {
                 JSONObject objMsg = new JSONObject()
                         .put("id", object.getId())
                         .put("message", object.getText());
@@ -62,13 +69,13 @@ public class SupportDialogWindowsController {
             }
 
             JSONObject entitySuccess = new JSONObject()
-                    .put("id", chat.get().getId().longValue())
+                    .put("id_chat", chat.get().getId().longValue())
                     .put("name_user", chat.get().getUserName())
                     .put("name_operator", chat.get().getOperatorName())
                     .put("id_operator", chat.get().getOperatorId())
                     .put("priority_level", chat.get().getPriorityLevel())
                     .put("messages", jsonArray);
-            return new ResponseEntity<>(entitySuccess.toString(), HttpStatus.OK);
+            return new ResponseEntity<>(new JSONObject().put("data", entitySuccess).toString(), HttpStatus.OK);
         }
         else {
             JSONObject entityError = new JSONObject()

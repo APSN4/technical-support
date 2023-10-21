@@ -44,13 +44,4 @@ public class Chat {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public void addMessage(Message message) {
-        messages.add(message);
-        message.setChat(this);
-    }
-    public void removeMessage(Message message) {
-        messages.remove(message);
-        message.setChat(null);
-    }
-
 }
