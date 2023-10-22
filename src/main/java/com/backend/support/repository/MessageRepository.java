@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findTop50ByOrderByIdDesc();
+
+    List<Message> findAllByChatId(Long chatId);
 }
